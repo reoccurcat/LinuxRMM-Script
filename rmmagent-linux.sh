@@ -74,14 +74,14 @@ go_url_armv6="https://go.dev/dl/go$go_version.linux-armv6l.tar.gz"
 function go_install() {
     if ! command -v go &> /dev/null; then
         case $system in
-        amd64) wget -O /tmp/golang.tar.gz "$go_url_amd64" ;;
-        x86) wget -O /tmp/golang.tar.gz "$go_url_x86" ;;
-        arm64) wget -O /tmp/golang.tar.gz "$go_url_arm64" ;;
-        armv6) wget -O /tmp/golang.tar.gz "$go_url_armv6" ;;
+        amd64) wget -O $HOME/golang.tar.gz "$go_url_amd64" ;;
+        x86) wget -O $HOME/golang.tar.gz "$go_url_x86" ;;
+        arm64) wget -O $HOME/golang.tar.gz "$go_url_arm64" ;;
+        armv6) wget -O $HOME/golang.tar.gz "$go_url_armv6" ;;
         esac
         rm -rf /usr/local/go/
-        tar -xvzf /tmp/golang.tar.gz -C /usr/local/
-        rm /tmp/golang.tar.gz
+        tar -xvzf $HOME/golang.tar.gz -C /usr/local/
+        rm $HOME/golang.tar.gz
         export PATH=$PATH:/usr/local/go/bin
         echo "Go is installed."
     fi
@@ -89,24 +89,24 @@ function go_install() {
 
 function agent_compile() {
         echo "Agent Compile begin"
-        wget -O /tmp/rmmagent.tar.gz "https://github.com/amidaware/rmmagent/archive/refs/heads/master.tar.gz"
-        tar -xf /tmp/rmmagent.tar.gz -C /tmp/
-        rm /tmp/rmmagent.tar.gz
-        cd /tmp/rmmagent-master
+        wget -O $HOME/rmmagent.tar.gz "https://github.com/amidaware/rmmagent/archive/refs/heads/master.tar.gz"
+        tar -xf $HOME/rmmagent.tar.gz -C $HOME/
+        rm $HOME/rmmagent.tar.gz
+        cd $HOME/rmmagent-master
         case $system in
-        amd64) env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o /tmp/temp_rmmagent ;;
-        x86) env CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags "-s -w" -o /tmp/temp_rmmagent ;;
-        arm64) env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "-s -w" -o /tmp/temp_rmmagent ;;
-        armv6) env CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -ldflags "-s -w" -o /tmp/temp_rmmagent ;;
+        amd64) env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o $HOME/temp_rmmagent ;;
+        x86) env CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags "-s -w" -o $HOME/temp_rmmagent ;;
+        arm64) env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "-s -w" -o $HOME/temp_rmmagent ;;
+        armv6) env CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -ldflags "-s -w" -o $HOME/temp_rmmagent ;;
         esac
-        cd /tmp
-        rm -R /tmp/rmmagent-master
+        cd $HOME
+        rm -R $HOME/rmmagent-master
 }
 
 function install_agent() {
-        cp /tmp/temp_rmmagent /usr/local/bin/rmmagent
-        /tmp/temp_rmmagent -m install -api $rmm_url -client-id $rmm_client_id -site-id $rmm_site_id -agent-type $rmm_agent_type -auth $rmm_auth
-        rm /tmp/temp_rmmagent
+        cp $HOME/temp_rmmagent /usr/local/bin/rmmagent
+        $HOME/temp_rmmagent -m install -api $rmm_url -client-id $rmm_client_id -site-id $rmm_site_id -agent-type $rmm_agent_type -auth $rmm_auth
+        rm $HOME/temp_rmmagent
         cat << "EOF" > /etc/systemd/system/tacticalagent.service
 [Unit]
 Description=Tactical RMM Linux Agent
@@ -128,12 +128,12 @@ EOF
 }
 
 function install_mesh() {
-        wget -O /tmp/meshagent $mesh_url
-        chmod +x /tmp/meshagent
+        wget -O $HOME/meshagent $mesh_url
+        chmod +x $HOME/meshagent
         mkdir /opt/tacticalmesh
-        /tmp/meshagent -install --installPath="/opt/tacticalmesh"
-        rm /tmp/meshagent
-        rm /tmp/meshagent.msh
+        $HOME/meshagent -install --installPath="/opt/tacticalmesh"
+        rm $HOME/meshagent
+        rm $HOME/meshagent.msh
 }
 
 function uninstall_agent() {
@@ -146,10 +146,10 @@ function uninstall_agent() {
 }
 
 function uninstall_mesh() {
-        wget "https://$mesh_fqdn/meshagents?script=1" -O /tmp/meshinstall.sh || wget "https://$mesh_fqdn/meshagents?script=1" --no-proxy -O /tmp/meshinstall.sh
-        chmod 755 /tmp/meshinstall.sh
-        /tmp/meshinstall.sh uninstall https://$mesh_fqdn $mesh_id || /tmp/meshinstall.sh uninstall uninstall uninstall https://$mesh_fqdn $mesh_id
-        rm /tmp/meshinstall.sh
+        wget "https://$mesh_fqdn/meshagents?script=1" -O $HOME/meshinstall.sh || wget "https://$mesh_fqdn/meshagents?script=1" --no-proxy -O $HOME/meshinstall.sh
+        chmod 755 $HOME/meshinstall.sh
+        $HOME/meshinstall.sh uninstall https://$mesh_fqdn $mesh_id || $HOME/meshinstall.sh uninstall uninstall uninstall https://$mesh_fqdn $mesh_id
+        rm $HOME/meshinstall.sh
 }
 
 case $1 in
